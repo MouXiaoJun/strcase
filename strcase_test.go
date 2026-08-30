@@ -2,6 +2,30 @@ package strcase
 
 import "testing"
 
+func TestUnicodeSeparatorBoundary(t *testing.T) {
+	first := ToSnake("Aϓ")
+	if second := ToSnake(first); first != "aϓ" || second != "a_ϓ" {
+		t.Fatalf("Unicode mapping boundary: first=%q second=%q", first, second)
+	}
+}
+
+func TestToSnakeInputBoundaries(t *testing.T) {
+	for _, tc := range []struct{ in, want string }{
+		{"éName", "é_name"},
+		{"e\u0301Name", "e\u0301name"},
+		{"a b", "a_b"},
+		{"a\tb", "a\tb"},
+		{"a\nb", "a\nb"},
+		{"a.b", "a.b"},
+		{"2fa", "2_fa"},
+		{"a\xffB", "a\ufffdb"},
+	} {
+		if got := ToSnake(tc.in); got != tc.want {
+			t.Errorf("ToSnake(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}
+
 // 表驱动:每个函数独立用例,覆盖文档化的全部切分规则:
 // 分隔符混合/连续、小写→大写、连续大写缩写、数字边界、非 ASCII、空串。
 func TestToSnake(t *testing.T) {

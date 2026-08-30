@@ -4,7 +4,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/MouXiaoJun/strcase.svg)](https://pkg.go.dev/github.com/MouXiaoJun/strcase)
 [![Go Version](https://img.shields.io/badge/go-1.21+-00ADD8?style=flat-square&logo=go)](https://golang.org)
-[![License](https://img.shields.io/badge/license-MulanPSL--2.0-green.svg?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 
 A **zero-dependency** naming-convention conversion library for Go: camelCase, PascalCase, snake_case, kebab-case and UPPER_SNAKE_CASE, with well-defined word-splitting rules for acronyms, digits, consecutive capitals and mixed separators.
 
@@ -15,7 +15,7 @@ A **zero-dependency** naming-convention conversion library for Go: camelCase, Pa
 - ✅ **Acronym-aware** — `HTTPRequest` → `http_request`, not `httprequest`
 - ✅ **Digit boundaries** — `version2` → `version_2`, `SHA256` → `sha_256`, `ID2Name` → `id_2_name`
 - ✅ **Mixed separators** — `user--_name` and `USER_NAME` both normalize to `user_name`
-- ✅ **Deterministic & idempotent** — separator styles are fixed points (`ToSnake(ToSnake(s)) == ToSnake(s)`) and mutually convertible (`ToSnake(ToKebab(s)) == ToSnake(s)`)
+- ✅ **Deterministic; ASCII idempotency** — on ASCII input, separator styles are fixed points (`ToSnake(ToSnake(s)) == ToSnake(s)`) and mutually convertible (`ToSnake(ToKebab(s)) == ToSnake(s)`)
 - ✅ **Fuzz-tested invariants** — `FuzzStrCase` verifies no-panic on arbitrary input plus the full invariant suite on ASCII input
 - ✅ **Unicode-safe** — Chinese/Latin letters are preserved (`用户Name` stays readable); invalid UTF-8 never panics
 
@@ -69,14 +69,14 @@ Every function splits the input into words first, then re-joins. The rules are d
 
 ## Idempotency & invariants
 
-Proven invariants (asserted in `FuzzStrCase`; hold for any input unless noted):
+`FuzzStrCase` checks the following invariants on ASCII input. For non-ASCII input it checks only that all five functions do not panic; fuzzing is not a proof over all possible strings.
 
 | Invariant | Scope |
 | --- | --- |
-| `ToSnake(ToSnake(s)) == ToSnake(s)` | all input |
-| `ToKebab(ToKebab(s)) == ToKebab(s)` | all input |
-| `ToSnake(ToKebab(s)) == ToSnake(s)` | all input |
-| `ToKebab(ToSnake(s)) == ToKebab(s)` | all input |
+| `ToSnake(ToSnake(s)) == ToSnake(s)` | ASCII |
+| `ToKebab(ToKebab(s)) == ToKebab(s)` | ASCII |
+| `ToSnake(ToKebab(s)) == ToSnake(s)` | ASCII |
+| `ToKebab(ToSnake(s)) == ToKebab(s)` | ASCII |
 | `ToUpperSnake(ToUpperSnake(s)) == ToUpperSnake(s)` | ASCII |
 | `ToSnake(ToUpperSnake(s)) == ToSnake(s)` | ASCII |
 | `ToCamel(ToSnake(s)) == ToCamel(s)` | ASCII |
@@ -84,15 +84,16 @@ Proven invariants (asserted in `FuzzStrCase`; hold for any input unless noted):
 
 ### Limitations (documented, not bugs)
 
-- **Camel/Pascal are not idempotent.** They encode word boundaries with capitalization, which is lossy for consecutive single-letter words: `a_b_c` → Pascal `ABC` re-parses as one word. `ToCamel("aA_A")` → `"aAA"` → `"aAa"`. Use the separator styles when round-tripping matters.
-- **Non-ASCII case-folding is asymmetric for a few characters** (Turkish `İ` lowercases to `i` which uppercases to `I`; `ϓ`/`ȷ` lack counterparts). For those inputs the fold-based invariants above are not guaranteed — `ToSnake`/`ToKebab` still behave sanely, and no input ever panics.
+- **Camel/Pascal are not idempotent.** They encode word boundaries with capitalization, which is lossy for consecutive single-letter words: `a_b_c` → Pascal `ABC` re-parses as one word. `ToCamel("aA_A")` → `"aAA"` → `"aAa"`. On ASCII input, separator styles preserve the documented word boundaries when converting between styles.
+- **Non-ASCII case mappings can change boundaries.** For example, `ToSnake("Aϓ")` is `"aϓ"`, but converting that result again gives `"a_ϓ"`. The invariants above are not guaranteed for Unicode input.
+- **No Unicode normalization or identifier validation.** `éName` becomes `é_name`, while `e\u0301Name` becomes `e\u0301name`. Only ordinary space, `_` and `-` are separators: tabs, newlines and punctuation stay in the output, and leading digits are not repaired. Invalid UTF-8 is replaced with U+FFFD, not preserved byte-for-byte.
 
 ## Why another strcase?
 
 - **Defined, tested, fuzz-verified rules** instead of regex magic: the tokenizer is ~60 lines and every rule above has table tests.
 - **Deterministic normalization**: acronyms and digits get the same treatment in every direction (`HTTPRequest` and `HTTP_Request` both → `http_request`).
-- **Zero dependencies**, go 1.21, Mulan PSL v2 — same family as [go-validator](https://github.com/MouXiaoJun/validator) and [go-copier](https://github.com/MouXiaoJun/copier).
+- **Zero dependencies**, go 1.21, MIT — same family as [go-validator](https://github.com/MouXiaoJun/validator) and [go-copier](https://github.com/MouXiaoJun/copier).
 
 ## License
 
-[Mulan PSL v2](LICENSE)
+[MIT](LICENSE)
