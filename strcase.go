@@ -24,7 +24,7 @@
 // # 输出规则
 //
 //   - ToSnake / ToKebab / ToUpperSnake:每词整词转小写 / 小写 / 大写,
-//     以 `_` / `-` / `_` 连接。分隔符风格是保真的:幂等
+//     以 `_` / `-` / `_` 连接。对纯 ASCII 输入,分隔符风格幂等
 //     (ToSnake(ToSnake(s)) == ToSnake(s)),且互相可转
 //     (ToSnake(ToKebab(s)) == ToSnake(s))。
 //   - ToCamel:首词整词小写,后续词首字母大写、其余小写(缩写同样归一化):
@@ -35,7 +35,9 @@
 // 驼峰 / 帕斯卡用大小写表达词边界,存在固有限制:连续单字母词会合并
 // (a_b_c → 帕斯卡 ABC,重切分为一个词 ABC),因此二者不保证幂等;
 // 词切分的规范形是 snake:对 ASCII 输入 ToCamel(ToSnake(s)) == ToCamel(s)、
-// ToPascal(ToSnake(s)) == ToPascal(s) 恒成立(见 fuzz 测试)。
+// ToPascal(ToSnake(s)) == ToPascal(s) 是 fuzz 测试检查的不变式。
+// 非 ASCII 大小写映射可能改变再次切分的边界,不保证这些不变式。
+// 本包不做 Unicode 规范化或标识符合法性校验;非法 UTF-8 会被替换为 U+FFFD。
 package strcase
 
 import (
