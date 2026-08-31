@@ -1,5 +1,7 @@
 # go-strcase
 
+维护边界：保持已发布 API，继续修复缺陷、安全问题和 Go 兼容性，不主动扩展 API。
+
 [English](README.md)
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/MouXiaoJun/strcase.svg)](https://pkg.go.dev/github.com/MouXiaoJun/strcase)
@@ -10,7 +12,7 @@
 
 ## 特性
 
-- ✅ **零依赖** — 仅标准库(`strings` / `unicode`),`go.mod` 干净,无供应链风险
+- ✅ **零依赖** — 仅标准库(`strings` / `unicode`),无第三方运行时模块依赖
 - ✅ **5 种风格,1 套分词器** — 所有函数按同一套文档化规则切词,再按各自风格拼装
 - ✅ **缩写感知** — `HTTPRequest` → `http_request`(而不是 `httprequest`)
 - ✅ **数字边界** — `version2` → `version_2`;`SHA256` → `sha_256`;`ID2Name` → `id_2_name`

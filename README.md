@@ -1,5 +1,7 @@
 # go-strcase
 
+Maintenance scope: preserve the published API; focus on bug fixes, security and Go compatibility, with no planned API expansion.
+
 [中文](README_zh.md)
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/MouXiaoJun/strcase.svg)](https://pkg.go.dev/github.com/MouXiaoJun/strcase)
@@ -10,7 +12,7 @@ A **zero-dependency** naming-convention conversion library for Go: camelCase, Pa
 
 ## Features
 
-- ✅ **Zero dependencies** — stdlib only (`strings` / `unicode`); clean `go.mod`, no supply-chain risk
+- ✅ **Zero dependencies** — stdlib only (`strings` / `unicode`); no third-party runtime modules
 - ✅ **5 styles, 1 tokenizer** — every function splits the input into words by the same documented rules, then re-joins with its own casing
 - ✅ **Acronym-aware** — `HTTPRequest` → `http_request`, not `httprequest`
 - ✅ **Digit boundaries** — `version2` → `version_2`, `SHA256` → `sha_256`, `ID2Name` → `id_2_name`
